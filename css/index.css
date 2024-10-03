@@ -1,0 +1,75 @@
+/* Ensure full height for body and proper spacing */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    padding-top: 56px; /* Space for fixed navbar */
+    background-color: #f8f9fa; /* Light background color */
+}
+
+img {
+    max-width: 100%; /* Make the image responsive */
+    height: auto; /* Maintain aspect ratio */
+    opacity: 0.8; /* Optional: make image slightly transparent */
+    margin-top: 20px; 
+}
+
+footer {
+    background-color: #343a40; /* Dark background for footer */
+    color: white; 
+    padding-top: -20px;/* White text color */
+    padding: 10px 0; /* Padding for top and bottom */
+    margin-top: auto; /* Push footer to the bottom */
+}
+
+.content {
+    padding-top:-10px; /* Add padding for better spacing */
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    border-radius: 10px; /* Rounded corners */
+    text-align: center; /* Center text */
+    margin: 20px; /* Add margin */
+    max-width: 600px; /* Max width for larger screens */
+    width: 100%; /* Full width on smaller screens */
+}
+
+.employee-content {
+    flex-grow: 1; /* Allow content to take available space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-shadow {
+    transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 8px 30px rgba(0, 0, 0, 0.15); /* Shadow on hover */
+}
+
+/* Button styles for social media */
+.btn.btn-social {
+    border: 0;
+    position: relative;
+    padding-left: 44px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 5px;
+}
+
+.btn.btn-social .fa {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 32px;
+    line-height: 43px;
+    font-size: 1.6em;
+    text-align: center;
+    border-right: 1px solid rgba(0,0,0,0.2);
+}
+
+
