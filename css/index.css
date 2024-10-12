@@ -1,0 +1,11 @@
+.btn-social {
+    border-radius: 50%;
+    margin: 0 5px;
+    color: #f8f9fa;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.btn-social:hover {
+    background-color: #007bff; /* Change background color on hover */
+    transform: scale(1.1); /* Slightly increase size */
+}
