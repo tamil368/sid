@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="./css/index.css">
     <title>Employee Management System</title>
+    
+    <script src="./jQuery/jquery.js"></script>
+    <script src="./jQuery/validation.js"></script>
     <style>
         html,
         body {
@@ -19,7 +22,18 @@
             flex-direction: column;
             background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
         }
-
+        .has-error input {
+            border-color: #dc3545;
+        }
+        
+        .alert {
+            padding: 0.5rem;
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            border-radius: 0.25rem;
+        }
+        
         .stars {
             position: fixed;
             top: 0;
@@ -35,7 +49,6 @@
             margin: 0 5px;
             color: #f8f9fa;
             transition: background-color 0.3s ease, transform 0.2s;
-            pointer-events: auto; /* Ensure pointer events are enabled */
         }
 
         .btn-social:hover {
@@ -91,14 +104,12 @@
             margin-bottom: 30px;
         }
 
-       
-
         .btn-social {
             border-radius: 50%;
             margin: 0 5px;
             color: #f8f9fa;
             transition: background-color 0.3s ease, transform 0.2s;
-            z-index: 10; /* Ensure buttons are on top */
+            z-index: 10;
         }
 
         .btn-social:hover {
@@ -109,7 +120,7 @@
         footer {
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            z-index: 10; /* Ensure footer content is above background */
+            z-index: 10;
             position: relative;
         }
 
@@ -123,7 +134,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="./index.htm">
-                <img src="./images/sid_log.png" style="width:60px;" class="rounded-pill" alt="Logo">
+                <img src="../images/sid_log.png" style="width:60px;" class="rounded-pill" alt="Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNavbar"
                 aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,17 +162,16 @@
                 for (let i = 0; i < numStars; i++) {
                     const star = document.createElement('div');
                     star.classList.add('star');
-                    const size = Math.random() * 3 + 1; // Random size between 1px and 4px
+                    const size = Math.random() * 3 + 1;
                     star.style.setProperty('--star-width', `${size}px`);
                     star.style.setProperty('--star-height', `${size}px`);
                     star.style.left = `${Math.random() * 100}vw`;
-                    star.style.animationDuration = `${Math.random() * 5 + 3}s`; // Random duration between 3s and 8s
-                    star.style.animationDelay = `${Math.random() * 10}s`; // Random delay
+                    star.style.animationDuration = `${Math.random() * 5 + 3}s`;
+                    star.style.animationDelay = `${Math.random() * 10}s`;
                     starsContainer.appendChild(star);
                 }
             }
-
-            createStars(50); // Create 50 stars
+            createStars(50);
         </script>
     </div>
 
@@ -170,28 +180,33 @@
             <div class="col-sm-12 col-md-8 col-lg-6">
                 <div class="box">
                     <h2 class="text-center">Sign Up</h2>
-                    <form method="post" id="signup-form">
+                    <form method="post" id="signup-form" action="/register">
                         <div class="form-group mb-3">
                             <label for="name">Name:</label>
-                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" required>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name"
+                                required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email"
+                                required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="phone">Phone Number:</label>
-                            <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+                            <input type="tel" id="phone" name="phone" class="form-control"
+                                placeholder="Enter your phone number" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="password">Password:</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Enter your password" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="confirm_password">Confirm Password:</label>
-                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                placeholder="Confirm your password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                        <button type="submit" name="submit" class="btn btn-primary w-100">Sign Up</button>
                     </form>
                 </div>
             </div>
@@ -212,11 +227,12 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <h5>Follow Us</h5>
-                    <a class="btn btn-social" href="https://www.facebook.com" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-social" href="https://www.facebook.com" title="Facebook"><i
+                            class="fab fa-facebook-f"></i></a>
                     <a class="btn btn-social" href="https://github.com" title="GitHub"><i class="fab fa-github"></i></a>
-                    <a class="btn btn-social" href="https://www.instagram.com" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a class="btn btn-social" href="https://www.instagram.com" title="Instagram"><i
+                            class="fab fa-instagram"></i></a>
                 </div>
-                
             </div>
             <hr class="bg-white">
             <div class="text-center">
@@ -225,6 +241,95 @@
             </div>
         </div>
     </footer>
+
+    <script>
+  
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select the form and fields
+            const form = document.getElementById("signup-form");
+            const name = document.getElementById("name");
+            const email = document.getElementById("email");
+            const phone = document.getElementById("phone");
+            const password = document.getElementById("password");
+            const confirmPassword = document.getElementById("confirm_password");
+    
+            function showError(input, message) {
+                const formGroup = input.parentElement;
+                formGroup.classList.add("has-error");
+                const error = document.createElement("div");
+                error.className = "alert alert-danger mt-2";
+                error.innerText = message;
+                if (formGroup.querySelector(".alert") === null) {
+                    formGroup.appendChild(error);
+                }
+            }
+    
+         
+            function clearError(input) {
+                const formGroup = input.parentElement;
+                formGroup.classList.remove("has-error");
+                const error = formGroup.querySelector(".alert");
+                if (error) {
+                    formGroup.removeChild(error);
+                }
+            }
+    
+            function validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(String(email).toLowerCase());
+            }
+    
+            function validatePhone(phone) {
+                return /^\d{10}$/.test(phone);
+            }
+    
+            form.addEventListener("submit", function (e) {
+                let isValid = true;
+    
+                // Clear previous errors
+                clearError(name);
+                clearError(email);
+                clearError(phone);
+                clearError(password);
+                clearError(confirmPassword);
+    
+                if (name.value.trim() === "" || name.value.length < 3) {
+                    showError(name, "Name must be at least 3 characters long.");
+                    isValid = false;
+                }
+    
+            
+                if (!validateEmail(email.value.trim())) {
+                    showError(email, "Please enter a valid email address.");
+                    isValid = false;
+                }
+    
+    
+                if (!validatePhone(phone.value.trim())) {
+                    showError(phone, "Phone number must be exactly 10 digits.");
+                    isValid = false;
+                }
+    
+                // Validate Password
+                if (password.value.trim() === "" || password.value.length < 6) {
+                    showError(password, "Password must be at least 6 characters long.");
+                    isValid = false;
+                }
+    
+                // Validate Confirm Password
+                if (confirmPassword.value !== password.value) {
+                    showError(confirmPassword, "Passwords do not match.");
+                    isValid = false;
+                }
+    
+                // If any field is invalid, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+    
 
 </body>
 
