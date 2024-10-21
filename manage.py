@@ -28,6 +28,11 @@ def login():
 def register():
     return render_template("register.htm")
 
+@app.route('/add_user')
+def add_user():
+    return render_template("user.htm")
+
+
 @app.route('/check_db')
 def check_db():
     try:
