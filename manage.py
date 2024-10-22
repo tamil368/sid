@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
-from auth import auth_bp
 import secrets
+from auth import auth_bp
 
 app = Flask(__name__)
+
+# MySQL database configurations
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
@@ -11,13 +13,18 @@ app.config['MYSQL_DB'] = 'employee_data'
 app.secret_key = secrets.token_hex(16)
 
 mysql = MySQL(app)
-
+app.config['MYSQL'] = mysql  # Make MySQL instance accessible to the blueprint
 app.register_blueprint(auth_bp)
 
 @app.route('/')
 def home():
     msg = request.args.get('msg')
     return render_template("index.htm", msg=msg)
+
+@app.route('/user_page')
+def user_page():
+    msg = request.args.get('msg')
+    return render_template("user.htm", msg=msg)
 
 @app.route('/login')
 def login():
@@ -30,8 +37,7 @@ def register():
 
 @app.route('/add_user')
 def add_user():
-    return render_template("user.htm")
-
+    return render_template("add_user.htm")
 
 @app.route('/check_db')
 def check_db():
