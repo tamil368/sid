@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import MySQLdb
+import mysql.connector
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -81,3 +82,4 @@ def add_user():
             flash(f'Error storing data: {str(e)}', 'danger')
             return redirect(url_for('auth.add_user'))
     return render_template('add_user.htm')
+

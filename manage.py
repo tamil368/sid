@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_mysqldb import MySQL
 import secrets
 from auth import auth_bp
@@ -23,8 +23,35 @@ def home():
 
 @app.route('/user_page')
 def user_page():
-    msg = request.args.get('msg')
-    return render_template("user.htm", msg=msg)
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, email, phone, role FROM users_role")
+    users = cur.fetchall()
+    cur.close()
+    return render_template("user.htm", users=users)
+
+@app.route('/update_user/<int:id>', methods=['GET', 'POST'])
+def update_user(id):
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        role = request.form['role']
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE users_role
+            SET name = %s, email = %s, phone = %s, role = %s
+            WHERE id = %s
+        """, (name, email, phone, role, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('user_page'))
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
+    user = cur.fetchone()
+    cur.close()
+    return render_template("update_user.htm", user=user)
 
 @app.route('/login')
 def login():
@@ -49,6 +76,8 @@ def check_db():
         return f"Connected to MySQL database. Version: {db_version[0]}"
     except Exception as e:
         return f"Error connecting to the database: {e}"
+# @app.route('/user')
+# def user_management():
 
 if __name__ == '__main__':
     app.run(debug=True)
