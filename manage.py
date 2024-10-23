@@ -14,6 +14,7 @@ app.secret_key = secrets.token_hex(16)
 
 mysql = MySQL(app)
 app.config['MYSQL'] = mysql  # Make MySQL instance accessible to the blueprint
+
 app.register_blueprint(auth_bp)
 
 @app.route('/')
@@ -24,10 +25,18 @@ def home():
 @app.route('/user_page')
 def user_page():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, name, email, phone, role FROM users_role")
+    cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
     return render_template("user.htm", users=users)
+
+@app.route('/admin_page')
+def admin_page():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
+    users = cur.fetchall()
+    cur.close()
+    return render_template("admin.htm", users=users)
 
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
@@ -36,7 +45,6 @@ def update_user(id):
         email = request.form['email']
         phone = request.form['phone']
         role = request.form['role']
-
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE users_role
@@ -46,12 +54,41 @@ def update_user(id):
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('user_page'))
-
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
     return render_template("update_user.htm", user=user)
+
+@app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
+def update_user_admin(id):
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        role = request.form['role']
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE users_role
+            SET name = %s, email = %s, phone = %s, role = %s
+            WHERE id = %s
+        """, (name, email, phone, role, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('admin_page'))
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
+    user = cur.fetchone()
+    cur.close()
+    return render_template("update_user_admin.htm", user=user)
+
+@app.route('/delete_user/<int:id>', methods=['POST'])
+def delete_user(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM users_role WHERE id = %s", (id,))
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('user_page'))
 
 @app.route('/login')
 def login():
@@ -76,8 +113,6 @@ def check_db():
         return f"Connected to MySQL database. Version: {db_version[0]}"
     except Exception as e:
         return f"Error connecting to the database: {e}"
-# @app.route('/user')
-# def user_management():
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -78,7 +78,7 @@
     <div class="bubbles"></div>
     <div class="container custom-shadow">
         <h2 class="text-center">Update User</h2>
-        <form method="post" action="{{ url_for('update_user', id=user[0]) }}">
+        <form method="post" action="{{ url_for('update_user_admin', id=user[0]) }}">
             <div class="form-group mb-3">
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" class="form-control" value="{{ user[1] }}" required>

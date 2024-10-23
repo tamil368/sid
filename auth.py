@@ -50,10 +50,10 @@ def login():
         user = cur.fetchone()
 
         if user and check_password_hash(user[4], password):
-            flash('Login successful!', 'success')
+            # flash('Login successful!', 'success')
             if user_type == 'User':
                 return redirect(url_for('user_page'))
-            elif user_type == 'Admin':
+            elif user_type =='Admin':
                 return redirect(url_for('admin_page'))
             else:
                 flash('Invalid user type', 'danger')
