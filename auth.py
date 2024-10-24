@@ -1,18 +1,16 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import MySQLdb
-import mysql.connector
 
 auth_bp = Blueprint('auth', __name__)
 
 def log_action(user_id, action, details):
-    cur = current_app.config['MYSQL'].connection.cursor()
+    cur = current_app.mysql.connection.cursor()
     cur.execute('''
         INSERT INTO logs (user_id, action, details)
         VALUES (%s, %s, %s)
     ''', (user_id, action, details))
-    current_app.config['MYSQL'].connection.commit()
+    current_app.mysql.connection.commit()
     cur.close()
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -29,10 +27,10 @@ def register():
             return redirect(url_for('auth.register'))
         hashed_password = generate_password_hash(password)
         try:
-            cur = current_app.config['MYSQL'].connection.cursor()
+            cur = current_app.mysql.connection.cursor()
             cur.execute("INSERT INTO users (name, email, phone, password, user_type) VALUES (%s, %s, %s, %s, %s)",
                         (name, email, phone, hashed_password, user_type))
-            current_app.config['MYSQL'].connection.commit()  # Commit the transaction
+            current_app.mysql.connection.commit()  # Commit the transaction
             user_id = cur.lastrowid
             cur.close()
             log_action(user_id, 'REGISTER', 'User registered successfully')
@@ -54,7 +52,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user_type = request.form['user_type']
-        cur = current_app.config['MYSQL'].connection.cursor()
+        cur = current_app.mysql.connection.cursor()
         cur.execute("SELECT * FROM users WHERE email = %s AND user_type = %s", (email, user_type))
         user = cur.fetchone()
         if user and check_password_hash(user[4], password):
@@ -81,10 +79,10 @@ def add_user():
         phone = request.form['phone']
         role = request.form['role']
         try:
-            cur = current_app.config['MYSQL'].connection.cursor()
+            cur = current_app.mysql.connection.cursor()
             cur.execute("INSERT INTO users_role (name, email, phone, role) VALUES (%s, %s, %s, %s)",
                         (name, email, phone, role))
-            current_app.config['MYSQL'].connection.commit()
+            current_app.mysql.connection.commit()
             cur.close()
             log_action(user_id, 'ADD_USER', f'Added user {name}')
             flash('Stored successfully!', 'success')
