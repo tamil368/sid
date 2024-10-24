@@ -109,8 +109,7 @@
             <tbody>
                 {% for user in users %}
                 <tr>
-                    <ol type="1">
-                    <td >{{ user[0] }}</td>
+                    <td>{{ user[0] }}</td>
                     <td>{{ user[1] }}</td>
                     <td>{{ user[2] }}</td>
                     <td>{{ user[3] }}</td>
@@ -121,7 +120,31 @@
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
                     </td>
-                </ol>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="container mt-5">
+        <h2 class="text-center">Activity Logs</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Name</th> <!-- Updated to show User Name instead of User ID -->
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log[0] }}</td>
+                    <td>{{ log[1] }}</td>
+                    <td>{{ log[2] }}</td>
+                    <td>{{ log[3] }}</td>
+                    <td>{{ log[4] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
