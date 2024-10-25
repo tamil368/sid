@@ -1,5 +1,5 @@
 Flask==2.2.2
 Flask-MySQLdb==1.0.0
 Werkzeug==2.2.3
-Flask mysql-connector-python 
-Flask-WTF
+pip install Flask mysql-connector-python 
+pip install Flask-WTF
