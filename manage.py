@@ -7,9 +7,9 @@ from datetime import datetime
 from auth import auth_bp
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_HOST'] = 'dpg-cse7i1dsvqrc73etobg0-a'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'fpEi3c9mmznahGcr5th58vKaLTQyy5tl'
 app.config['MYSQL_DB'] = 'employee_data'
 app.secret_key = secrets.token_hex(16)
 mysql = MySQL(app)
