@@ -1,5 +1,5 @@
 Flask
-Flask-MySQLdb
+Flask-SQLAlchemy
+psycopg2-binary
 Werkzeug
 pandas
-

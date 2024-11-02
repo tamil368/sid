@@ -1,17 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-import MySQLdb
+from manage import db, UserRole, Log
 
 auth_bp = Blueprint('auth', __name__)
 
 def log_action(user_id, action, details):
-    cur = current_app.mysql.connection.cursor()
-    cur.execute('''
-        INSERT INTO logs (user_id, action, details)
-        VALUES (%s, %s, %s)
-    ''', (user_id, action, details))
-    current_app.mysql.connection.commit()
-    cur.close()
+    log = Log(user_id=user_id, action=action, details=details)
+    db.session.add(log)
+    db.session.commit()
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -21,25 +17,19 @@ def register():
         phone = request.form['phone']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
-        user_type = request.form['user_type']
+        role = request.form['role']
         if password != confirm_password:
             flash('Passwords do not match!', 'danger')
             return redirect(url_for('auth.register'))
         hashed_password = generate_password_hash(password)
         try:
-            cur = current_app.mysql.connection.cursor()
-            cur.execute("INSERT INTO users (name, email, phone, password, user_type) VALUES (%s, %s, %s, %s, %s)",
-                        (name, email, phone, hashed_password, user_type))
-            current_app.mysql.connection.commit()  # Commit the transaction
-            user_id = cur.lastrowid
-            cur.close()
-            log_action(user_id, 'REGISTER', 'User registered successfully')
+            user = UserRole(name=name, email=email, phone=phone, role=role)
+            user.password = hashed_password  # Add a password attribute to your model if it doesn't already exist
+            db.session.add(user)
+            db.session.commit()
+            log_action(user.id, 'REGISTER', 'User registered successfully')
             flash('Registration successful!', 'success')
             return redirect(url_for('auth.login'))
-        except MySQLdb.IntegrityError as e:
-            flash(f'Error: Email already registered! {str(e)}', 'danger')
-            log_action(0, 'REGISTER_FAILED', 'Email already registered')
-            return redirect(url_for('auth.register'))
         except Exception as e:
             flash(f'Error storing data: {str(e)}', 'danger')
             log_action(0, 'REGISTER_FAILED', 'Error storing data')
@@ -51,15 +41,13 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user_type = request.form['user_type']
-        cur = current_app.mysql.connection.cursor()
-        cur.execute("SELECT * FROM users WHERE email = %s AND user_type = %s", (email, user_type))
-        user = cur.fetchone()
-        if user and check_password_hash(user[4], password):
-            log_action(user[0], 'LOGIN_SUCCESS', 'Login successful')
-            if user_type == 'User':
+        role = request.form['role']
+        user = UserRole.query.filter_by(email=email, role=role).first()
+        if user and check_password_hash(user.password, password):
+            log_action(user.id, 'LOGIN_SUCCESS', 'Login successful')
+            if role == 'User':
                 return redirect(url_for('user_page'))
-            elif user_type == 'Admin':
+            elif role == 'Admin':
                 return redirect(url_for('admin_page'))
             else:
                 flash('Invalid user type', 'danger')
@@ -79,11 +67,9 @@ def add_user():
         phone = request.form['phone']
         role = request.form['role']
         try:
-            cur = current_app.mysql.connection.cursor()
-            cur.execute("INSERT INTO users_role (name, email, phone, role) VALUES (%s, %s, %s, %s)",
-                        (name, email, phone, role))
-            current_app.mysql.connection.commit()
-            cur.close()
+            user = UserRole(name=name, email=email, phone=phone, role=role)
+            db.session.add(user)
+            db.session.commit()
             log_action(user_id, 'ADD_USER', f'Added user {name}')
             flash('Stored successfully!', 'success')
             return redirect(url_for('auth.add_user'))

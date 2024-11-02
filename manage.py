@@ -1,20 +1,15 @@
 import os
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy
 import secrets
 from datetime import datetime
 from auth import auth_bp
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'dpg-cse7i1dsvqrc73etobg0-a'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'fpEi3c9mmznahGcr5th58vKaLTQyy5tl'
-app.config['MYSQL_DB'] = 'employee_data'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:fpEi3c9mmznahGcr5th58vKaLTQyy5tl@dpg-cse7i1dsvqrc73etobg0-a/employee_data_thu5'
 app.secret_key = secrets.token_hex(16)
-
-mysql = MySQL(app)
-app.mysql = mysql  # Set the MySQL instance in the app context
+db = SQLAlchemy(app)
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -25,15 +20,27 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 app.register_blueprint(auth_bp)
 
+# Define your models
+class UserRole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    email = db.Column(db.String(100))
+    phone = db.Column(db.String(15))
+    role = db.Column(db.String(20))
+    password = db.Column(db.String(255))
+
+class Log(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_role.id'))
+    action = db.Column(db.String(50))
+    details = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 # Function to log user actions
 def log_action(user_id, action, details):
-    cur = mysql.connection.cursor()
-    cur.execute('''
-        INSERT INTO logs (user_id, action, details)
-        VALUES (%s, %s, %s)
-    ''', (user_id, action, details))
-    mysql.connection.commit()
-    cur.close()
+    log = Log(user_id=user_id, action=action, details=details)
+    db.session.add(log)
+    db.session.commit()
 
 # Home page route
 @app.route('/')
@@ -49,81 +56,54 @@ def upload_page():
 # User page route
 @app.route('/user_page')
 def user_page():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
-    users = cur.fetchall()
-    cur.close()
+    users = UserRole.query.order_by(UserRole.id.asc()).all()
     return render_template("user.html", users=users)
 
 # Admin page route
 @app.route('/admin_page')
 def admin_page():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
-    users = cur.fetchall()
-    cur.execute('''
-        SELECT logs.id, users.name, logs.action, logs.timestamp, logs.details
-        FROM logs
-        JOIN users ON logs.user_id = users.id
-        ORDER BY logs.timestamp DESC
-    ''')
-    logs = cur.fetchall()
-    cur.close()
+    users = UserRole.query.order_by(UserRole.id.asc()).all()
+    logs = Log.query.join(UserRole, Log.user_id == UserRole.id).order_by(Log.timestamp.desc()).all()
     return render_template("admin.html", users=users, logs=logs)
 
 # Update user route for users
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
     user_id = 1  # Replace with dynamic logged-in user ID
+    user = UserRole.query.get_or_404(id)
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        phone = request.form['phone']
-        role = request.form['role']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
-                    (name, email, phone, role, id))
-        mysql.connection.commit()
+        user.name = request.form['name']
+        user.email = request.form['email']
+        user.phone = request.form['phone']
+        user.role = request.form['role']
+        db.session.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
-        cur.close()
         return redirect(url_for('user_page'))
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
-    user = cur.fetchone()
-    cur.close()
     return render_template("update_user.html", user=user)
 
 # Update user route for admins
 @app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
 def update_user_admin(id):
     user_id = 1  # Replace with dynamic logged-in user ID
+    user = UserRole.query.get_or_404(id)
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        phone = request.form['phone']
-        role = request.form['role']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
-                    (name, email, phone, role, id))
-        mysql.connection.commit()
+        user.name = request.form['name']
+        user.email = request.form['email']
+        user.phone = request.form['phone']
+        user.role = request.form['role']
+        db.session.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
-        cur.close()
         return redirect(url_for('admin_page'))
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
-    user = cur.fetchone()
-    cur.close()
     return render_template("update_user_admin.html", user=user)
 
 # Delete user route
 @app.route('/delete_user/<int:id>', methods=['POST'])
 def delete_user(id):
     user_id = 1  # Replace with dynamic logged-in user ID
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM users_role WHERE id = %s", (id,))
-    mysql.connection.commit()
+    user = UserRole.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
     log_action(user_id, 'DELETE', f'Deleted user {id}')
-    cur.close()
     return redirect(url_for('admin_page'))
 
 # Login page route
@@ -146,11 +126,8 @@ def add_user():
 @app.route('/check_db')
 def check_db():
     try:
-        cur = mysql.connection.cursor()
-        cur.execute('SELECT VERSION()')
-        db_version = cur.fetchone()
-        cur.close()
-        return f"Connected to MySQL database. Version: {db_version[0]}"
+        db.session.execute('SELECT 1')
+        return "Connected to PostgreSQL database."
     except Exception as e:
         return f"Error connecting to the database: {e}"
 
@@ -175,7 +152,7 @@ def upload_file():
             flash("File successfully uploaded and data imported into the database!", "success")
             return redirect(url_for('upload_page'))
         except Exception as e:
-            flash("Duplicated data not allowed", 'error')
+            flash("Duplicated data not Allowed", 'error')
             return redirect(url_for('upload_page'))
     else:
         flash('Invalid file type. Please upload a valid Excel file or CSV.', 'error')
@@ -187,15 +164,10 @@ def import_file_to_db(file_path):
         df = pd.read_excel(file_path)
     elif file_path.endswith('.csv'):
         df = pd.read_csv(file_path)
-    cur = mysql.connection.cursor()
-    # Iterate over each row in the file and insert into users_role table
     for index, row in df.iterrows():
-        cur.execute('''
-            INSERT INTO users_role (name, email, phone, role)
-            VALUES (%s, %s, %s, %s)
-        ''', (row['name'], row['email'], row['phone'], row['role']))
-        mysql.connection.commit()
-    cur.close()
+        user = UserRole(name=row['name'], email=row['email'], phone=row['phone'], role=row['role'])
+        db.session.add(user)
+    db.session.commit()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5432)))
