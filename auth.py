@@ -44,7 +44,7 @@ def register():
             flash(f'Error storing data: {str(e)}', 'danger')
             log_action(0, 'REGISTER_FAILED', 'Error storing data')
             return redirect(url_for('auth.register'))
-    return render_template('register.htm')
+    return render_template('register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -68,7 +68,7 @@ def login():
             flash('Invalid email, password, or user type', 'danger')
             log_action(0, 'LOGIN_FAILED', 'Invalid credentials or user type')
             return redirect(url_for('auth.login'))
-    return render_template('login.htm')
+    return render_template('login.html')
 
 @auth_bp.route('/add_user', methods=['GET', 'POST'])
 def add_user():
@@ -91,4 +91,4 @@ def add_user():
             flash(f'Error storing data: {str(e)}', 'danger')
             log_action(user_id, 'ADD_USER_FAILED', f'Error storing user {name}')
             return redirect(url_for('auth.add_user'))
-    return render_template('add_user.htm')
+    return render_template('add_user.html')

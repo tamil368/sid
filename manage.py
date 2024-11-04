@@ -1,17 +1,18 @@
 import os
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, flash, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 import secrets
 from datetime import datetime
 from auth import auth_bp
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'dpg-cse7i1dsvqrc73etobg0-a'
+app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'fpEi3c9mmznahGcr5th58vKaLTQyy5tl'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'employee_data'
 app.secret_key = secrets.token_hex(16)
+
 mysql = MySQL(app)
 app.mysql = mysql  # Set the MySQL instance in the app context
 
@@ -38,12 +39,12 @@ def log_action(user_id, action, details):
 @app.route('/')
 def home():
     msg = request.args.get('msg')
-    return render_template("index.htm", msg=msg)
+    return render_template("index.html", msg=msg)
 
 # Upload page route
 @app.route('/upload_page')
 def upload_page():
-    return render_template('upload.htm')
+    return render_template('upload.html')
 
 # User page route
 @app.route('/user_page')
@@ -52,7 +53,7 @@ def user_page():
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
-    return render_template("user.htm", users=users)
+    return render_template("user.html", users=users)
 
 # Admin page route
 @app.route('/admin_page')
@@ -68,7 +69,7 @@ def admin_page():
     ''')
     logs = cur.fetchall()
     cur.close()
-    return render_template("admin.htm", users=users, logs=logs)
+    return render_template("admin.html", users=users, logs=logs)
 
 # Update user route for users
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
@@ -80,7 +81,7 @@ def update_user(id):
         phone = request.form['phone']
         role = request.form['role']
         cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
+        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
                     (name, email, phone, role, id))
         mysql.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
@@ -90,7 +91,7 @@ def update_user(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user.htm", user=user)
+    return render_template("update_user.html", user=user)
 
 # Update user route for admins
 @app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
@@ -102,7 +103,7 @@ def update_user_admin(id):
         phone = request.form['phone']
         role = request.form['role']
         cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
+        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
                     (name, email, phone, role, id))
         mysql.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
@@ -112,7 +113,7 @@ def update_user_admin(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user_admin.htm", user=user)
+    return render_template("update_user_admin.html", user=user)
 
 # Delete user route
 @app.route('/delete_user/<int:id>', methods=['POST'])
@@ -129,17 +130,17 @@ def delete_user(id):
 @app.route('/login')
 def login():
     msg = request.args.get('msg')
-    return render_template("login.htm", msg=msg)
+    return render_template("login.html", msg=msg)
 
 # Register page route
 @app.route('/register')
 def register():
-    return render_template("register.htm")
+    return render_template("register.html")
 
 # Add user route
 @app.route('/add_user')
 def add_user():
-    return render_template("add_user.htm")
+    return render_template("add_user.html")
 
 # Route to check database connection
 @app.route('/check_db')
@@ -174,7 +175,7 @@ def upload_file():
             flash("File successfully uploaded and data imported into the database!", "success")
             return redirect(url_for('upload_page'))
         except Exception as e:
-            flash("Duplicated data not Allowed", 'error')
+            flash("Duplicated data not allowed", 'error')
             return redirect(url_for('upload_page'))
     else:
         flash('Invalid file type. Please upload a valid Excel file or CSV.', 'error')
@@ -196,5 +197,5 @@ def import_file_to_db(file_path):
         mysql.connection.commit()
     cur.close()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
