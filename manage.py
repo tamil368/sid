@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import secrets
 from datetime import datetime
-from auth import auth_bp
+import auth_bp
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:fpEi3c9mmznahGcr5th58vKaLTQyy5tl@dpg-cse7i1dsvqrc73etobg0-a/employee_data_thu5'
