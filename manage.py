@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from flask_mysqldb import MySQL
 import secrets
 from datetime import datetime
@@ -12,7 +12,6 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'employee_data'
 app.secret_key = secrets.token_hex(16)
-
 mysql = MySQL(app)
 app.mysql = mysql  # Set the MySQL instance in the app context
 
@@ -81,7 +80,7 @@ def update_user(id):
         phone = request.form['phone']
         role = request.form['role']
         cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
+        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
                     (name, email, phone, role, id))
         mysql.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
@@ -103,7 +102,7 @@ def update_user_admin(id):
         phone = request.form['phone']
         role = request.form['role']
         cur = mysql.connection.cursor()
-        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s",
+        cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
                     (name, email, phone, role, id))
         mysql.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
@@ -175,7 +174,7 @@ def upload_file():
             flash("File successfully uploaded and data imported into the database!", "success")
             return redirect(url_for('upload_page'))
         except Exception as e:
-            flash("Duplicated data not allowed", 'error')
+            flash("Duplicated data not Allowed", 'error')
             return redirect(url_for('upload_page'))
     else:
         flash('Invalid file type. Please upload a valid Excel file or CSV.', 'error')
@@ -197,5 +196,5 @@ def import_file_to_db(file_path):
         mysql.connection.commit()
     cur.close()
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+if __name__ == '__main__':
+    app.run(debug=True)
