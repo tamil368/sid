@@ -1,19 +1,16 @@
 import os
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app
-from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy
 import secrets
 from datetime import datetime
 from auth import auth_bp
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'employee_data'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://default:KAGCrxPlH3O0@ep-rapid-smoke-a4a82xjr.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = secrets.token_hex(16)
-mysql = MySQL(app)
-app.mysql = mysql  # Set the MySQL instance in the app context
+db = SQLAlchemy(app)
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -26,12 +23,12 @@ app.register_blueprint(auth_bp)
 
 # Function to log user actions
 def log_action(user_id, action, details):
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute('''
         INSERT INTO logs (user_id, action, details)
         VALUES (%s, %s, %s)
     ''', (user_id, action, details))
-    mysql.connection.commit()
+    cur.connection.commit()
     cur.close()
 
 # Home page route
@@ -48,7 +45,7 @@ def upload_page():
 # User page route
 @app.route('/user_page')
 def user_page():
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
@@ -57,7 +54,7 @@ def user_page():
 # Admin page route
 @app.route('/admin_page')
 def admin_page():
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.execute('''
@@ -79,14 +76,14 @@ def update_user(id):
         email = request.form['email']
         phone = request.form['phone']
         role = request.form['role']
-        cur = mysql.connection.cursor()
+        cur = db.engine.raw_connection().cursor()
         cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
                     (name, email, phone, role, id))
-        mysql.connection.commit()
+        cur.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
         cur.close()
         return redirect(url_for('user_page'))
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
@@ -101,14 +98,14 @@ def update_user_admin(id):
         email = request.form['email']
         phone = request.form['phone']
         role = request.form['role']
-        cur = mysql.connection.cursor()
+        cur = db.engine.raw_connection().cursor()
         cur.execute("UPDATE users_role SET name = %s, email = %s, phone = %s, role = %s WHERE id = %s", 
                     (name, email, phone, role, id))
-        mysql.connection.commit()
+        cur.connection.commit()
         log_action(user_id, 'UPDATE', f'Updated user {id}')
         cur.close()
         return redirect(url_for('admin_page'))
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
@@ -118,9 +115,9 @@ def update_user_admin(id):
 @app.route('/delete_user/<int:id>', methods=['POST'])
 def delete_user(id):
     user_id = 1  # Replace with dynamic logged-in user ID
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     cur.execute("DELETE FROM users_role WHERE id = %s", (id,))
-    mysql.connection.commit()
+    cur.connection.commit()
     log_action(user_id, 'DELETE', f'Deleted user {id}')
     cur.close()
     return redirect(url_for('admin_page'))
@@ -145,11 +142,11 @@ def add_user():
 @app.route('/check_db')
 def check_db():
     try:
-        cur = mysql.connection.cursor()
+        cur = db.engine.raw_connection().cursor()
         cur.execute('SELECT VERSION()')
         db_version = cur.fetchone()
         cur.close()
-        return f"Connected to MySQL database. Version: {db_version[0]}"
+        return f"Connected to PostgreSQL database. Version: {db_version[0]}"
     except Exception as e:
         return f"Error connecting to the database: {e}"
 
@@ -186,14 +183,14 @@ def import_file_to_db(file_path):
         df = pd.read_excel(file_path)
     elif file_path.endswith('.csv'):
         df = pd.read_csv(file_path)
-    cur = mysql.connection.cursor()
+    cur = db.engine.raw_connection().cursor()
     # Iterate over each row in the file and insert into users_role table
     for index, row in df.iterrows():
         cur.execute('''
             INSERT INTO users_role (name, email, phone, role)
             VALUES (%s, %s, %s, %s)
         ''', (row['name'], row['email'], row['phone'], row['role']))
-        mysql.connection.commit()
+        cur.connection.commit()
     cur.close()
 
 if __name__ == '__main__':
