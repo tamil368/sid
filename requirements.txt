@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 click==8.1.7
 colorama==0.4.6
 Flask==2.2.2
@@ -8,3 +9,9 @@ MarkupSafe==3.0.1
 mysqlclient==2.2.4
 Werkzeug==2.2.3
 mysql==0.0.3
+=======
+Flask
+Flask-SQLAlchemy
+psycopg2-binary
+pandas
+>>>>>>> ee64380d0b806e20e57b7221e88b46003b75230b
