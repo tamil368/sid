@@ -1,4 +1,11 @@
 @echo off
+:: Check if Git is installed
+git --version >nul 2>&1
+if errorlevel 1 (
+    echo Git is not installed. Please install Git and try again.
+    exit /b
+)
+
 :: Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
