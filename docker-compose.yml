@@ -6,4 +6,4 @@ services:
       - "8888:8888"
     environment:
       - FLASK_ENV=production
-      - SECRET_KEY=your-secret-key
+      - SECRET_KEY=your-secret-key  # enter your secret key only if you have
