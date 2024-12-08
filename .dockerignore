@@ -8,6 +8,13 @@ env/
 venv/
 conda/
 
+# Node dependencies
+node_modules
+
+# Node out directory
+dist
+build
+
 # Ignore git repository files
 .git
 .gitignore
