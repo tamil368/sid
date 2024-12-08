@@ -1,8 +1,30 @@
-.git
-.venv
-.conda
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environment
+env/
+venv/
+conda/
+
+# Ignore IDE/editor files
 .vs
-.vscode
+.git
 .idea
-__pycache__
-__pycache__/*
+.vscode
+
+# Ignore Node dependencies
+node_modules
+
+# Ignore Node out directory
+dist
+build
+
+# Ignore sensitive files (e.g., config or env files)
+.env
+.venv
+.venv/*
+.conda
+.conda/*
+*.sqlite3
