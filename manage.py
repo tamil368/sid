@@ -3,7 +3,6 @@ import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from flask_mysqldb import MySQL
 import secrets
-from datetime import datetime
 from auth import auth_bp
 
 app = Flask(__name__)
