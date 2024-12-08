@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, flash, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 import secrets
 from auth import auth_bp
@@ -37,12 +37,12 @@ def log_action(user_id, action, details):
 @app.route('/')
 def home():
     msg = request.args.get('msg')
-    return render_template("index.html", msg=msg)
+    return render_template("/index.html", msg=msg)
 
 # Upload page route
 @app.route('/upload_page')
 def upload_page():
-    return render_template('upload.html')
+    return render_template('/templates/upload.html')
 
 # User page route
 @app.route('/user_page')
@@ -51,7 +51,7 @@ def user_page():
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
-    return render_template("user.html", users=users)
+    return render_template("/templates/user.html", users=users)
 
 # Admin page route
 @app.route('/admin_page')
@@ -67,7 +67,7 @@ def admin_page():
     ''')
     logs = cur.fetchall()
     cur.close()
-    return render_template("admin.html", users=users, logs=logs)
+    return render_template("/templates/admin.html", users=users, logs=logs)
 
 # Update user route for users
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
@@ -89,7 +89,7 @@ def update_user(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user.html", user=user)
+    return render_template("/templates/update_user.html", user=user)
 
 # Update user route for admins
 @app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
@@ -111,7 +111,7 @@ def update_user_admin(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user_admin.html", user=user)
+    return render_template("/templates/update_user_admin.html", user=user)
 
 # Delete user route
 @app.route('/delete_user/<int:id>', methods=['POST'])
@@ -128,17 +128,17 @@ def delete_user(id):
 @app.route('/login')
 def login():
     msg = request.args.get('msg')
-    return render_template("login.html", msg=msg)
+    return render_template("/templates/login.html", msg=msg)
 
 # Register page route
 @app.route('/register')
 def register():
-    return render_template("register.html")
+    return render_template("/templates/register.html")
 
 # Add user route
 @app.route('/add_user')
 def add_user():
-    return render_template("add_user.html")
+    return render_template("/templates/add_user.html")
 
 # Route to check database connection
 @app.route('/check_db')
