@@ -26,10 +26,10 @@ def log_action(user_id, action, details):
     mysql.connection.commit()
     cur.close()
 
-@app.route('/')
+@app.route('/home_page')
 def home():
     msg = request.args.get('msg')
-    return render_template("index.htm", msg=msg)
+    return render_template('index.html', msg=msg)
 
 @app.route('/user_page')
 def user_page():
@@ -37,7 +37,7 @@ def user_page():
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
-    return render_template("user.htm", users=users)
+    return render_template("user.html", users=users)
 
 @app.route('/admin_page')
 def admin_page():
@@ -52,7 +52,7 @@ def admin_page():
     ''')
     logs = cur.fetchall()
     cur.close()
-    return render_template("admin.htm", users=users, logs=logs)
+    return render_template("admin.html", users=users, logs=logs)
 
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
@@ -76,7 +76,7 @@ def update_user(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user.htm", user=user)
+    return render_template("update_user.html", user=user)
 
 @app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
 def update_user_admin(id):
@@ -100,7 +100,7 @@ def update_user_admin(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("update_user_admin.htm", user=user)
+    return render_template("update_user_admin.html", user=user)
 
 @app.route('/delete_user/<int:id>', methods=['POST'])
 def delete_user(id):
@@ -115,15 +115,15 @@ def delete_user(id):
 @app.route('/login')
 def login():
     msg = request.args.get('msg')
-    return render_template("login.htm", msg=msg)
+    return render_template("login.html", msg=msg)
 
 @app.route('/register')
 def register():
-    return render_template("register.htm")
+    return render_template('register.html')
 
 @app.route('/add_user')
 def add_user():
-    return render_template("add_user.htm")
+    return render_template("add_user.html")
 
 @app.route('/check_db')
 def check_db():

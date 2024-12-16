@@ -5,7 +5,10 @@ from flask_mysqldb import MySQL
 import secrets
 from auth import auth_bp
 
+# Initialize Flask app
 app = Flask(__name__)
+
+# MySQL configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
@@ -14,6 +17,7 @@ app.secret_key = secrets.token_hex(16)
 mysql = MySQL(app)
 app.mysql = mysql  # Set the MySQL instance in the app context
 
+# File upload configuration
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -21,6 +25,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+# Register authentication blueprint
 app.register_blueprint(auth_bp)
 
 # Function to log user actions
@@ -36,13 +41,12 @@ def log_action(user_id, action, details):
 # Home page route
 @app.route('/')
 def home():
-    msg = request.args.get('msg')
-    return render_template("/index.html", msg=msg)
+    return render_template('index.html')
 
 # Upload page route
 @app.route('/upload_page')
 def upload_page():
-    return render_template('/templates/upload.html')
+    return render_template('upload.html')
 
 # User page route
 @app.route('/user_page')
@@ -51,7 +55,7 @@ def user_page():
     cur.execute("SELECT id, name, email, phone, role FROM users_role ORDER BY id ASC")
     users = cur.fetchall()
     cur.close()
-    return render_template("/templates/user.html", users=users)
+    return render_template('user.html', users=users)
 
 # Admin page route
 @app.route('/admin_page')
@@ -67,7 +71,7 @@ def admin_page():
     ''')
     logs = cur.fetchall()
     cur.close()
-    return render_template("/templates/admin.html", users=users, logs=logs)
+    return render_template('admin.html', users=users, logs=logs)
 
 # Update user route for users
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
@@ -89,7 +93,7 @@ def update_user(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("/templates/update_user.html", user=user)
+    return render_template('update_user.html', user=user)
 
 # Update user route for admins
 @app.route('/update_user_admin/<int:id>', methods=['GET', 'POST'])
@@ -111,7 +115,7 @@ def update_user_admin(id):
     cur.execute("SELECT id, name, email, phone, role FROM users_role WHERE id = %s", (id,))
     user = cur.fetchone()
     cur.close()
-    return render_template("/templates/update_user_admin.html", user=user)
+    return render_template('update_user_admin.html', user=user)
 
 # Delete user route
 @app.route('/delete_user/<int:id>', methods=['POST'])
@@ -128,17 +132,17 @@ def delete_user(id):
 @app.route('/login')
 def login():
     msg = request.args.get('msg')
-    return render_template("/templates/login.html", msg=msg)
+    return render_template('login.html', msg=msg)
 
 # Register page route
 @app.route('/register')
 def register():
-    return render_template("/templates/register.html")
+    return render_template('register.html')
 
 # Add user route
 @app.route('/add_user')
 def add_user():
-    return render_template("/templates/add_user.html")
+    return render_template('add_user.html')
 
 # Route to check database connection
 @app.route('/check_db')
@@ -195,5 +199,6 @@ def import_file_to_db(file_path):
         mysql.connection.commit()
     cur.close()
 
+# Run the Flask application
 if __name__ == '__main__':
     app.run(debug=True)
