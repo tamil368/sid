@@ -6,7 +6,9 @@ __pycache__/
 # Ignore virtual environment
 env/
 venv/
+.venv/
 conda/
+.conda/
 
 # Ignore IDE/editor files
 .vs
@@ -23,9 +25,5 @@ build
 
 # Ignore sensitive files (e.g., config or env files)
 .env
-.venv
-.venv/*
-.conda
-.conda/*
 *.sqlite3
 .vercel
