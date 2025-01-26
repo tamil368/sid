@@ -9,3 +9,8 @@
     background-color: #007bff; /* Change background color on hover */
     transform: scale(1.1); /* Slightly increase size */
 }
+
+*, body {
+  font-family: Arial, Consolas, monospace;
+  -webkit-user-drag: none;
+}
