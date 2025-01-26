@@ -10,7 +10,7 @@ automatic_scaling:
 
 env_variables:
   FLASK_ENV: production
-  SECRET_KEY: "your-secret-key"
+  SECRET_KEY: secret
 
 handlers:
   - url: /static

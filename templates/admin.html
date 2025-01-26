@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,74 +13,63 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
-            /* Smooth transition */
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition */
         }
-
         footer {
             margin-top: auto;
         }
-
         .custom-shadow {
             transition: box-shadow 0.3s ease;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 8px 30px rgba(0, 0, 0, 0.15);
         }
-
         .content-section {
             padding: 20px 0;
         }
-
         .content-section p {
             font-size: 1.25rem;
         }
-
         /* Dark Mode Styles */
         body.dark {
             background-color: #212529;
             color: #f8f9fa;
         }
-
         footer.dark {
             background-color: #000000;
             color: #f8f9fa;
         }
-
         /* Light Mode Styles */
         body.light {
             background-color: #ffffff;
             color: #212529;
         }
-
         footer.light {
             background-color: #f8f9fa;
             color: #212529;
         }
-
         /* Hover Effects */
         .nav-link:hover {
             color: #ffc107; /* Change color on hover */
         }
-
         .btn-social {
             border-radius: 50%;
             margin: 0 5px;
             color: #f8f9fa;
             transition: background-color 0.3s ease, transform 0.2s;
         }
-
         .btn-social:hover {
             background-color: #007bff; /* Change background color on hover */
             transform: scale(1.1); /* Slightly increase size */
         }
+        .table-form {
+            display: inline;
+        }
     </style>
 </head>
-
 <body class="light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('home') }}">
-
                 <img src="../static/css/images/sid_log.png" style="width:60px;" class="rounded-pill" alt="Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNavbar"
@@ -93,14 +81,14 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="{{ url_for('home') }}">Home</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('add_user') }}">Add Employee</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('upload_page') }}">Import</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}"><i class="fa fa-user-plus"></i> Sign Up</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}"><i class="fa fa-sign-in-alt"></i> Login</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="theme-toggle"><i class="fa fa-adjust"></i> Mode</a>
                     </li>
@@ -108,65 +96,63 @@
             </div>
         </div>
     </nav>
-
-    <div class="container mt-5" style="padding-top: 50px;">
-        <div class="row justify-content-center">
-            <div class="col-md-7">
-                <div class="employee-content text-center">
-                    <img src="../static/css/images/header_gif.gif" class="img-fluid custom-shadow" alt="Header Image">
-                </div>
-            </div>
-        </div>
+    <div class="container mt-5" style="padding-top: 100px;">
+        <h2 class="text-center">Admin Management</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user[0] }}</td>
+                    <td>{{ user[1] }}</td>
+                    <td>{{ user[2] }}</td>
+                    <td>{{ user[3] }}</td>
+                    <td>{{ user[4] }}</td>
+                    <td>
+                        <a href="{{ url_for('update_user_admin', id=user[0]) }}" class="btn btn-warning btn-sm">Update</a>
+                        <form action="{{ url_for('delete_user', id=user[0]) }}" method="post" class="table-form">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <div class="container content-section">
-        <div class="row">
-            <div class="col-md-6 mt-4">
-                <p>
-                    Connecteam's mission is to help businesses thrive by taking away the daily hustle and complexities
-                    of managing teams so they can have the peace of mind to grow and run their business. Over 500,000
-                    daily non-desk employees already use Connecteam to simplify their day-to-day, communicate better,
-                    and work efficiently start your free trial!
-                </p>
-            </div>
-            <div class="col-md-6 mt-4">
-                <img src="../static/css/images/download_99.19841269841272.svg" alt="Background Image" class="img-fluid">
-            </div>
-        </div>
+    <div class="container mt-5">
+        <h2 class="text-center">Activity Logs</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Name</th> <!-- Updated to show User Name instead of User ID -->
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log[0] }}</td>
+                    <td>{{ log[1] }}</td>
+                    <td>{{ log[2] }}</td>
+                    <td>{{ log[3] }}</td>
+                    <td>{{ log[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <div class="container content-section">
-        <div class="row">
-            <div class="col-md-6 mt-4">
-                <img src="../static/css/images/download_99.19841269841272.svg" alt="Background Image" class="img-fluid">
-            </div>
-            <div class="col-md-6 mt-4">
-                <p>
-                    Connecteam's mission is to help businesses thrive by taking away the daily hustle and complexities
-                    of managing teams so they can have the peace of mind to grow and run their business. Over 500,000
-                    daily non-desk employees already use Connecteam to simplify their day-to-day, communicate better,
-                    and work efficiently start your free trial!
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="container content-section">
-        <div class="row">
-            <div class="col-md-6 mt-4">
-                <p>
-                    Connecteam's mission is to help businesses thrive by taking away the daily hustle and complexities
-                    of managing teams so they can have the peace of mind to grow and run their business. Over 500,000
-                    daily non-desk employees already use Connecteam to simplify their day-to-day, communicate better,
-                    and work efficiently  start your free trial!
-                </p>
-            </div>
-            <div class="col-md-6 mt-4">
-                <img src="../static/css/images/download_99.19841269841272.svg" alt="Background Image" class="img-fluid">
-            </div>
-        </div>
-    </div>
-
     <footer class="bg-dark text-white pt-4 footer dark">
         <div class="container">
             <div class="row">
@@ -177,7 +163,7 @@
                 <div class="col-md-4 mb-3">
                     <h5>Contact Us</h5>
                     <p>Email: siddharth@gmail.com</p>
-                    <p>Phone: +91 8056425698</p>
+                    <p>Phone: +91 9876543210</p>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h5>Follow Us</h5>
@@ -188,12 +174,10 @@
             </div>
             <hr class="bg-white">
             <div class="text-center">
-                <p class="mb-0">&copy; 2024 All rights reserved. <a href="#" class="text-white">Privacy Policy</a> | <a
-                        href="#" class="text-white">Terms of Service</a></p>
+                <p class="mb-0">&copy; 2024 All rights reserved. <a href="#" class="text-white">Privacy Policy</a> | <a href="#" class="text-white">Terms of Service</a></p>
             </div>
         </div>
     </footer>
-
     <script>
         document.getElementById('theme-toggle').addEventListener('click', function () {
             document.body.classList.toggle('dark');
@@ -204,5 +188,4 @@
         });
     </script>
 </body>
-
 </html>
